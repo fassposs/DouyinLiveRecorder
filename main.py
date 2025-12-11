@@ -1940,6 +1940,7 @@ if __name__ == "__main__":
         else:
             video_save_type = "TS"
 
+        # 视频保存路径,同时检查磁盘容量
         check_path = video_save_path or default_path
         if utils.check_disk_capacity(check_path, show=first_run) < disk_space_limit:
             exit_recording = True
@@ -1948,7 +1949,7 @@ if __name__ == "__main__":
                                f"Exiting program due to the disk space limit being reached.")
                 sys.exit(-1)
 
-
+        # 判断是否包含url
         def contains_url(string: str) -> bool:
             pattern = r"(https?://)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+(:\d+)?(/.*)?"
             return re.search(pattern, string) is not None
@@ -1956,6 +1957,7 @@ if __name__ == "__main__":
 
         try:
             url_comments, line_list, url_line_list = [[] for _ in range(3)]
+            # 遍历每一行,去掉重复
             with (open(url_config_file, "r", encoding=text_encoding, errors='ignore') as file):
                 for origin_line in file:
                     if origin_line in line_list:
@@ -1967,6 +1969,7 @@ if __name__ == "__main__":
 
                     line_spilt = line.split('主播: ')
                     if len(line_spilt) > 2:
+                        # 更新一行数据信息
                         line = update_file(url_config_file, line, f'{line_spilt[0]}主播: {line_spilt[-1]}')
 
                     is_comment_line = line.startswith("#")
