@@ -1047,6 +1047,7 @@ def start_record(url_data: tuple, count_variable: int = -1) -> None:
                         logger.error(f'{record_url} {platform}直播地址')
                         return
 
+                    # 提取主播名字
                     if anchor_name:
                         if '主播:' in anchor_name:
                             anchor_split: list = anchor_name.split('主播:')
@@ -1066,6 +1067,7 @@ def start_record(url_data: tuple, count_variable: int = -1) -> None:
                         anchor_name = clean_name(anchor_name)
                         record_name = f'序号{count_variable} {anchor_name}'
 
+                        # 注释掉的
                         if record_url in url_comments:
                             print(f"[{anchor_name}]已被注释,本条线程将会退出")
                             clear_record_info(record_name, record_url)
@@ -1111,6 +1113,7 @@ def start_record(url_data: tuple, count_variable: int = -1) -> None:
 
                                     push_content = (push_content.replace('[直播间名称]', record_name).
                                                     replace('[时间]', push_at))
+                                    # 推送一个消息开播了
                                     threading.Thread(
                                         target=push_message,
                                         args=(record_name, record_url, push_content.replace(r'\n', '\n')),
@@ -1118,10 +1121,12 @@ def start_record(url_data: tuple, count_variable: int = -1) -> None:
                                     ).start()
                                 start_pushed = True
 
+                            # 是否是禁止录播的
                             if disable_record:
                                 time.sleep(push_check_seconds)
                                 continue
 
+                            # 选择一个URL
                             real_url = select_source_url(record_url, port_info)
                             full_path = f'{default_path}/{platform}'
                             if real_url:
@@ -1972,6 +1977,7 @@ if __name__ == "__main__":
                         # 更新一行数据信息
                         line = update_file(url_config_file, line, f'{line_spilt[0]}主播: {line_spilt[-1]}')
 
+                    # 以#开头的去掉
                     is_comment_line = line.startswith("#")
                     if is_comment_line:
                         line = line.lstrip('#')
@@ -2002,6 +2008,7 @@ if __name__ == "__main__":
                     else:
                         delete_line(url_config_file, origin_line)
 
+                    # 拼接上https
                     url = 'https://' + url if '://' not in url else url
                     url_host = url.split('/')[2]
 
@@ -2101,10 +2108,12 @@ if __name__ == "__main__":
                     if 'live.shopee.' in url_host or '.shp.ee' in url_host:
                         url_host = 'live.shopee.' if 'live.shopee.' in url_host else '.shp.ee'
 
+                    # url在平台列表 或者url包含.flv"或".m3u8"扩展名
                     if url_host in platform_host or any(ext in url for ext in (".flv", ".m3u8")):
                         if url_host in clean_url_host_list:
                             url = update_file(url_config_file, old_str=url, new_str=url.split('?')[0])
 
+                        # 搜索host_id
                         if 'xiaohongshu' in url:
                             host_id = re.search('&host_id=(.*?)(?=&|$)', url)
                             if host_id:
@@ -2140,6 +2149,7 @@ if __name__ == "__main__":
                 for url_tuple in text_no_repeat_url:
                     monitoring = len(running_list)
 
+                    # 不需要录屏的
                     if url_tuple[1] in not_record_list:
                         continue
 
@@ -2158,9 +2168,11 @@ if __name__ == "__main__":
         except Exception as err:
             logger.error(f"错误信息: {err} 发生错误的行数: {err.__traceback__.tb_lineno}")
 
+        # 首次启动打印
         if first_run:
             t = threading.Thread(target=display_info, args=(), daemon=True)
             t.start()
+            # 动态适配修改参数
             t2 = threading.Thread(target=adjust_max_request, args=(), daemon=True)
             t2.start()
             first_run = False
